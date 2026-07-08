@@ -1,61 +1,106 @@
 # Playmon
 
-Playmon is a **mobile multi-core emulator application** designed specifically for
-Pokémon games.
+Playmon is a mobile-first ROM manager and player shell for Pokémon-focused emulation workflows.
 
-## Core Product Goals
+## Current MVP (implemented)
 
-- Multi-core support (different emulator cores for different Pokémon platforms)
-- In-app core library with downloadable cores from trusted third-party sources
-- In-app Pokémon ROM library (third-party fetched) with search and direct download/play
-- Pokémon-focused UX (save states, quick load, game library management)
-- Cheats support and deep customization (input, graphics, audio, speed, themes)
-- Smooth performance across **low-end, mid-end, and high-end** mobile devices
+- Expo/React Native mobile app foundation
+- Third-party ROM catalog URL input + fetch
+- In-app ROM search
+- ROM download to local device storage
+- Custom ROM import from local files
+- Local ROM library management (play/delete)
+- Direct play flow via embedded EmulatorJS runtime in-app
+- Performance profiles (low/mid/high) tuned for smoother gameplay defaults
 
-## Planned Architecture (MVP)
+## Run locally
 
-### 1) Mobile App Shell
-- Cross-platform mobile shell (Android-first, iOS-ready)
-- ROM library management with metadata, cover art, and play history
-- Save states, auto-save, and restore
+```bash
+npm install
+npm run android
+```
 
-### 2) Core Runtime
-- Pluggable emulator core interface
-- Runtime core selection per game
-- Per-core compatibility profile and settings
+You can also use:
 
-### 3) Core Download Library
-- Fetch available cores from a third-party catalog endpoint
-- Display version, compatibility, and integrity info
-- Download/install/update/remove cores in-app
+```bash
+npm run ios
+npm run web
+```
 
-### 4) ROM Catalog + Import/Export
-- Fetch Pokémon ROM listings from third-party catalog sources
-- Search and filter ROMs in-app, then download and play directly
-- Support custom ROM import and export for user-managed collections
+## Android release pipeline (EAS)
 
-### 5) Pokémon-Focused Features
-- Fast-forward, rewind (where supported), and frame skip
-- Cheats manager (import/export, enable/disable per game)
-- Controller mapping, touch layout editor, and vibration options
+### 1) One-time setup
 
-### 6) Device Performance Profiles
-- **Low-end:** reduced rendering scale, aggressive frame skip, battery saver defaults
-- **Mid-end:** balanced profile with optional enhancements
-- **High-end:** HD rendering, shaders, enhanced audio/latency settings
+```bash
+npm install
+npx eas login
+npx eas build:configure
+```
 
-## Non-Functional Requirements
+### 2) Signed preview APK (internal testing)
 
-- Startup time optimized for older devices
-- Stable emulation with crash-safe save state handling
-- Background-safe download manager for large core files
-- Secure remote fetch validation (checksum/signature support when available)
+```bash
+npm run build:android:preview
+```
 
-## Roadmap
+This uses `eas.json` profile `preview` and produces a signed APK for tester installs.
 
-1. Build mobile shell + local game library
-2. Integrate pluggable core runtime
-3. Add third-party core catalog fetch/download flow
-4. Add third-party Pokémon ROM catalog with search/download/play + import/export
-5. Add cheats/customization UI
-6. Tune profiles and benchmarks for low/mid/high-end devices
+### 3) Production AAB (Play Store)
+
+```bash
+npm run build:android:production
+```
+
+This uses `eas.json` profile `production`, auto-increments app version remotely, and creates a signed AAB.
+
+### 4) Submit production build to Play Console internal track
+
+```bash
+npm run submit:android:production
+```
+
+## CI automation
+
+GitHub Actions workflow: `/home/runner/work/playmon/playmon/.github/workflows/android-eas-build.yml`
+
+- Manual dispatch with profile selection (`preview` or `production`)
+- Automatic production build on version tags (`v*.*.*`)
+
+Required GitHub secret:
+
+- `EXPO_TOKEN`: Expo access token with EAS build/submit permissions
+
+## ROM catalog payload format
+
+Set any third-party JSON endpoint that returns either:
+
+```json
+[
+  {
+    "name": "Pokemon Example ROM",
+    "url": "https://example.com/game.gba",
+    "system": "gba"
+  }
+]
+```
+
+or:
+
+```json
+{
+  "items": [
+    {
+      "name": "Pokemon Example ROM",
+      "url": "https://example.com/game.gba",
+      "system": "gba"
+    }
+  ]
+}
+```
+
+Supported ROM extensions/systems in this MVP: `gba`, `gb`, `gbc`, `nes`, `sfc`, `smc`, `snes`, `n64`, `z64`, `nds`.
+
+## Notes
+
+- You are responsible for using legally obtained ROM files and catalog sources.
+- EmulatorJS assets are loaded at runtime from its CDN.
