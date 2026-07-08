@@ -29,7 +29,7 @@ npm run web
 
 ## Android release pipeline (EAS)
 
-### 1) One-time setup
+### 1) One-time local setup
 
 ```bash
 npm install
@@ -43,7 +43,7 @@ npx eas build:configure
 npm run build:android:preview
 ```
 
-This uses `eas.json` profile `preview` and produces a signed APK for tester installs.
+Uses `eas.json` profile `preview` to create a signed APK.
 
 ### 3) Production AAB (Play Store)
 
@@ -51,7 +51,7 @@ This uses `eas.json` profile `preview` and produces a signed APK for tester inst
 npm run build:android:production
 ```
 
-This uses `eas.json` profile `production`, auto-increments app version remotely, and creates a signed AAB.
+Uses `eas.json` profile `production` to create a signed AAB and auto-increment app version.
 
 ### 4) Submit production build to Play Console internal track
 
@@ -59,16 +59,46 @@ This uses `eas.json` profile `production`, auto-increments app version remotely,
 npm run submit:android:production
 ```
 
-## CI automation
+## GitHub Actions setup (automatic Android releases)
 
-GitHub Actions workflow: `/home/runner/work/playmon/playmon/.github/workflows/android-eas-build.yml`
+Workflow file: `.github/workflows/android-eas-build.yml`
 
-- Manual dispatch with profile selection (`preview` or `production`)
-- Automatic production build on version tags (`v*.*.*`)
+### 1) Create an Expo access token
 
-Required GitHub secret:
+1. Sign in to Expo (`https://expo.dev`).
+2. Open **Account Settings → Access Tokens**.
+3. Create a token with EAS build permissions.
 
-- `EXPO_TOKEN`: Expo access token with EAS build/submit permissions
+### 2) Add required GitHub repository secret
+
+1. Open your GitHub repository.
+2. Go to **Settings → Secrets and variables → Actions**.
+3. Add a new secret:
+   - `EXPO_TOKEN`: your Expo access token
+
+### 3) Trigger builds
+
+- **Manual build (APK or AAB):**
+  - Go to **Actions → Android EAS Build → Run workflow**
+  - Select profile:
+    - `preview` → signed APK
+    - `production` → signed AAB
+
+- **Automatic production build on release tags:**
+  - Push a semantic version tag matching `v*.*.*` (example: `v1.0.1`)
+  - Tag push automatically triggers a production AAB build
+
+### 4) Where to get the built files
+
+- Open the workflow run in GitHub Actions.
+- The EAS build command logs include the Expo build URL.
+- Download the final APK/AAB from the Expo build page linked in the logs.
+
+### 5) Troubleshooting checklist
+
+- `EXPO_TOKEN` missing/invalid in repository secrets
+- Expo account does not have access to this project
+- Android package identifier in `app.json` does not match your configured credentials
 
 ## ROM catalog payload format
 
