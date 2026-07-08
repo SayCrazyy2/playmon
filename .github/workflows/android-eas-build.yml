@@ -43,12 +43,12 @@ jobs:
 
       - name: Build preview APK
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.profile == 'preview' }}
-        run: npx eas build --platform android --profile preview --non-interactive --wait
+        run: eas build --platform android --profile preview --non-interactive --wait
 
       - name: Build production AAB
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.profile == 'production' }}
-        run: npx eas build --platform android --profile production --non-interactive --wait
+        run: eas build --platform android --profile production --non-interactive --wait
 
       - name: Build production AAB on version tags
         if: ${{ github.event_name == 'push' }}
-        run: npx eas build --platform android --profile production --non-interactive --wait
+        run: eas build --platform android --profile production --non-interactive --wait
