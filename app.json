@@ -1,17 +1,21 @@
 {
   "expo": {
-    "name": "playmon_expo",
-    "slug": "playmon_expo",
+    "name": "Playmon",
+    "slug": "playmon",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
+    "platforms": ["android", "ios", "web"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.saycrazyy2.playmon"
     },
     "android": {
+      "package": "com.saycrazyy2.playmon",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#16161a",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"

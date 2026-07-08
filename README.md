@@ -27,6 +27,49 @@ npm run ios
 npm run web
 ```
 
+## Android release pipeline (EAS)
+
+### 1) One-time setup
+
+```bash
+npm install
+npx eas login
+npx eas build:configure
+```
+
+### 2) Signed preview APK (internal testing)
+
+```bash
+npm run build:android:preview
+```
+
+This uses `eas.json` profile `preview` and produces a signed APK for tester installs.
+
+### 3) Production AAB (Play Store)
+
+```bash
+npm run build:android:production
+```
+
+This uses `eas.json` profile `production`, auto-increments app version remotely, and creates a signed AAB.
+
+### 4) Submit production build to Play Console internal track
+
+```bash
+npm run submit:android:production
+```
+
+## CI automation
+
+GitHub Actions workflow: `/home/runner/work/playmon/playmon/.github/workflows/android-eas-build.yml`
+
+- Manual dispatch with profile selection (`preview` or `production`)
+- Automatic production build on version tags (`v*.*.*`)
+
+Required GitHub secret:
+
+- `EXPO_TOKEN`: Expo access token with EAS build/submit permissions
+
 ## ROM catalog payload format
 
 Set any third-party JSON endpoint that returns either:
