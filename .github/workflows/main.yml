@@ -1,0 +1,54 @@
+name: Android EAS Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: EAS build profile
+        required: true
+        default: preview
+        type: choice
+        options:
+          - preview
+          - production
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  android-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      EAS_NO_VCS: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build preview APK
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.profile == 'preview' }}
+        run: npx eas build --platform android --profile preview --non-interactive --wait
+
+      - name: Build production AAB
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.profile == 'production' }}
+        run: npx eas build --platform android --profile production --non-interactive --wait
+
+      - name: Build production AAB on version tags
+        if: ${{ github.event_name == 'push' }}
+        run: npx eas build --platform android --profile production --non-interactive --wait
